@@ -341,40 +341,41 @@ class StreamClient(EnumEnforcer):
     async def handle_message(self):
         async with self._lock:
             msg = await self._receive()
+        return msg 
 
-        # response
-        if 'response' in msg:
-            raise UnexpectedResponse(msg,
-                                     'unexpected response code during message handling: {}, msg is \'{}\''.format(
-                                         msg['response'][0]['content']['code'],
-                                         msg['response'][0]['content']['msg']))
+#         # response
+#         if 'response' in msg:
+#             raise UnexpectedResponse(msg,
+#                                      'unexpected response code during message handling: {}, msg is \'{}\''.format(
+#                                          msg['response'][0]['content']['code'],
+#                                          msg['response'][0]['content']['msg']))
 
-        # data
-        if 'data' in msg:
-            for d in msg['data']:
-                if d['service'] in self._handlers:
-                    for handler in self._handlers[d['service']]:
-                        labeled_d = handler.label_message(d)
-                        h = handler(labeled_d)
+#         # data
+#         if 'data' in msg:
+#             for d in msg['data']:
+#                 if d['service'] in self._handlers:
+#                     for handler in self._handlers[d['service']]:
+#                         labeled_d = handler.label_message(d)
+#                         h = handler(labeled_d)
 
-                        # Check if h is an awaitable, if so schedule it
-                        # This allows for both sync and async handlers
-                        if inspect.isawaitable(h):
-                            asyncio.ensure_future(h)
+#                         # Check if h is an awaitable, if so schedule it
+#                         # This allows for both sync and async handlers
+#                         if inspect.isawaitable(h):
+#                             asyncio.ensure_future(h)
 
-        # notify
-        if 'notify' in msg:
-            for d in msg['notify']:
-                if 'heartbeat' in d:
-                    pass
-                else:
-                    for handler in self._handlers[d['service']]:
-                        h = handler(d)
+#         # notify
+#         if 'notify' in msg:
+#             for d in msg['notify']:
+#                 if 'heartbeat' in d:
+#                     pass
+#                 else:
+#                     for handler in self._handlers[d['service']]:
+#                         h = handler(d)
 
-                        # Check if h is an awaitable, if so schedule oit
-                        # This allows for both sync and async handlers
-                        if inspect.isawaitable(h):
-                            asyncio.ensure_future(h)
+#                         # Check if h is an awaitable, if so schedule oit
+#                         # This allows for both sync and async handlers
+#                         if inspect.isawaitable(h):
+#                             asyncio.ensure_future(h)
 
     ##########################################################################
     # LOGIN
